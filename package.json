@@ -1,0 +1,36 @@
+{
+  "name": "macronorm",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "bootstrap": "tsx src/db/setup.ts",
+    "bootstrap:force": "tsx src/db/setup.ts --force",
+    "dev": "tsx src/server/index.ts",
+    "build": "tsc",
+    "start": "node dist/server/index.js",
+    "ingest:fred": "tsx src/ingestion/fred.ts",
+    "ingest:worldbank": "tsx src/ingestion/world-bank.ts",
+    "ingest:imf": "tsx src/ingestion/imf.ts",
+    "ingest:bis": "tsx src/ingestion/bis.ts",
+    "scheduler": "tsx src/ingestion/scheduler.ts",
+    "ingest:all": "tsx src/ingestion/scheduler.ts --run-now"
+  },
+  "dependencies": {
+    "@ctxprotocol/sdk": "^0.9.0",
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "@types/express": "^5.0.6",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "node-cron": "^3.0.3",
+    "node-fetch": "^3.3.2",
+    "pg": "^8.11.3",
+    "redis": "^4.6.13"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/node-cron": "^3.0.11",
+    "@types/pg": "^8.11.6",
+    "tsx": "^4.7.0",
+    "typescript": "^5.4.0"
+  }
+}
