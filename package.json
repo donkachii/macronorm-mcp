@@ -13,7 +13,8 @@
     "ingest:imf": "tsx src/ingestion/imf.ts",
     "ingest:bis": "tsx src/ingestion/bis.ts",
     "scheduler": "tsx src/ingestion/scheduler.ts",
-    "ingest:all": "tsx src/ingestion/scheduler.ts --run-now"
+    "ingest:all": "tsx src/ingestion/scheduler.ts --run-now",
+    "setup": "tsx src/db/run-schema.ts"
   },
   "dependencies": {
     "@ctxprotocol/sdk": "^0.9.0",
