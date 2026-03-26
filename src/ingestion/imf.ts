@@ -8,6 +8,16 @@ const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const IMF_BASE_URL = "https://www.imf.org/external/datamapper/api/v1";
 const REQUEST_DELAY_MS = 300;
 
+const IMF_BILLION_SCALE_INDICATORS = new Set([
+  "CURRENT_ACCOUNT_USD",
+  "EXPORTS_USD",
+  "IMPORTS_USD",
+  "FDI_INFLOWS_USD",
+  "FDI_NET_USD",
+  "RESERVES_USD",
+  "GOVT_DEBT_USD",
+]);
+
 async function fetchIMFIndicatorAllCountries(
   indicatorCode: string
 ): Promise<Record<string, Record<string, number | null>>> {
@@ -20,11 +30,11 @@ async function fetchIMFIndicatorAllCountries(
 
 async function fetchCountryISO3Map(client: pkg.PoolClient): Promise<Map<string, string>> {
   const result = await client.query(
-    `SELECT iso3 FROM countries WHERE is_active = TRUE`
+    `SELECT iso3, imf_code FROM countries WHERE is_active = TRUE AND imf_code IS NOT NULL`
   );
   const map = new Map<string, string>();
   for (const row of result.rows) {
-    map.set(row.iso3, row.iso3);
+    map.set(String(row.imf_code), row.iso3);
   }
   return map;
 }
@@ -48,6 +58,9 @@ async function upsertCountryData(
   let count = 0;
   for (const [year, value] of Object.entries(yearValues)) {
     if (value === null) continue;
+    const scaledValue = IMF_BILLION_SCALE_INDICATORS.has(mapping.canonical_id)
+      ? value * 1_000_000_000
+      : value;
     await client.query(
       `INSERT INTO macro_data
          (country_iso3, canonical_id, period, frequency, value, unit, source, source_code, last_updated)
@@ -62,7 +75,7 @@ async function upsertCountryData(
         mapping.canonical_id,
         year,
         mapping.frequency,
-        value,
+        scaledValue,
         mapping.unit,
         mapping.source_code,
       ]

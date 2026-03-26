@@ -447,9 +447,14 @@ async function handleCompareIndicator(args: Record<string, unknown>) {
   for (const iso3 of upperCountries) {
     if (period) {
       const r = await pool.query(
-        `SELECT md.country_iso3, c.name as country_name, md.period, md.value, md.source
+        `SELECT md.country_iso3, c.name as country_name, md.period, md.value,
+                md.source, ism.source_database
          FROM macro_data md
          JOIN countries c ON c.iso3 = md.country_iso3
+         LEFT JOIN indicator_source_map ism
+           ON ism.canonical_id = md.canonical_id
+          AND ism.source       = md.source
+          AND ism.source_code  = md.source_code
          WHERE md.canonical_id = $1
            AND md.frequency    = $2
            AND md.period       = $3
@@ -464,7 +469,7 @@ async function handleCompareIndicator(args: Record<string, unknown>) {
           country_name: r.rows[0].country_name,
           period:       r.rows[0].period,
           value:        parseFloat(r.rows[0].value),
-          source:       r.rows[0].source,
+          source:       formatSource(r.rows[0].source, r.rows[0].source_database ?? null),
         });
         continue;
       }
@@ -571,6 +576,7 @@ function createServer() {
 
   mcpServer.setRequestHandler(CallToolRequestSchema, async (request) => {
     const { name, arguments: args = {} } = request.params;
+    console.log(`Tool called: ${name}`);
     let data: unknown;
 
     switch (name) {
