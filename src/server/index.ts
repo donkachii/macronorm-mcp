@@ -3,7 +3,7 @@ import express from "express";
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { ListToolsRequestSchema, CallToolRequestSchema } from "@modelcontextprotocol/sdk/types.js";
-// import { createContextMiddleware } from "@ctxprotocol/sdk";
+import { createContextMiddleware } from "@ctxprotocol/sdk";
 import { cacheGet, cacheSet, makeCacheKey } from "./cache.js";
 import pkg from "pg";
 
@@ -610,7 +610,7 @@ function createServer() {
 
 const app = express();
 app.use(express.json());
-// app.use("/mcp", createContextMiddleware());
+app.use("/mcp", createContextMiddleware());
 
 app.post("/mcp", async (req, res) => {
   const mcpServer = createServer();
